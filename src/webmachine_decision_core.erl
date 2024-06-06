@@ -49,7 +49,7 @@ resource_call(Fun) ->
     put(reqstate, NewRS),
     Reply.
 
-get_header_val(H) -> wrcall({get_req_header, H}).
+get_header_val(H) -> wrcall({get_req_header, {normalised, H}}).
 
 method() -> wrcall(method).
 
@@ -601,7 +601,7 @@ decision(v3p11) ->
     end.
 
 accept_helper() ->
-    accept_helper(get_header_val("Content-Type")).
+    accept_helper(get_header_val("content-type")).
 
 accept_helper(undefined) ->
     accept_helper("application/octet-stream");
