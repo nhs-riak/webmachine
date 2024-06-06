@@ -7,3 +7,4 @@ doc/*
 /.rebar
 _build
 .DS_Store
+rebar.lock
