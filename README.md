@@ -8,7 +8,7 @@ contact [@seancribbs](http://github.com/seancribbs) to get involved.
 
 ### Overview
 
-![Webmachine OpenRiak Status](https://github.com/OpenRiak/webmachine/actions/workflows/erlang.yml/badge.svg?branch=openriak-3.2)
+![Webmachine OpenRiak Status](https://github.com/OpenRiak/webmachine/actions/workflows/erlang.yml/badge.svg?branch=openriak-3.4)
 
 Webmachine is an application layer that adds HTTP semantic awareness
 on top of the excellent bit-pushing and HTTP syntax-management
