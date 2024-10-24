@@ -71,7 +71,7 @@ test_host_header_ipv6(Ctx) ->
         is_tuple(ListenAddr) andalso tuple_size(ListenAddr) == 8 ->
             ExpectHost = add_port(Ctx, "::1"),
             ExpectTokens = <<"[", ExpectHost/binary, "]">>,
-            verify_host_header(Ctx, "[::1]", ExpectHost, ExpectTokens);
+            verify_host_header(Ctx, "[::1]", ExpectHost, ExpectTokens, true);
         true ->
             ?debugMsg("Skipping test_host_header_ipv6, not listening on v6 address")
     end.
@@ -112,8 +112,18 @@ add_port(Ctx, Host) ->
 %% TODO: wm crashes if multiple Host headers are sent
 
 verify_host_header(Ctx, Host, ExpectHostHeader, ExpectHostTokens) ->
+    verify_host_header(Ctx, Host, ExpectHostHeader, ExpectHostTokens, false).
+
+verify_host_header(Ctx, Host, ExpectHostHeader, ExpectHostTokens, PreferV6) ->
+    Opts =
+        case PreferV6 of
+            true ->
+                [{prefer_ipv6, true}];
+            false ->
+                []
+        end,
     URL = url(Ctx, Host, "wm_echo_host_header"),
-    {ok, Status, _Headers, Body} = ibrowse:send_req(URL, [], get, [], []),
+    {ok, Status, _Headers, Body} = ibrowse:send_req(URL, [], get, [], Opts),
     ?assertEqual("200", Status),
     Got = wm_echo_host_header:parse_body(Body),
     ?debugVal(Got),
