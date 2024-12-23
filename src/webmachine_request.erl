@@ -151,7 +151,7 @@ peer_from_peername({ok, {Addr, _Port}}, End, Req) ->
                                    [_, "\"["++Rest] ->
                                        string:split(Rest, "]");
                                    [_, Rest] ->
-                                       string:tokens(Rest, ":;")
+                                       string:lexemes(Rest, ":;")
                                end,
                     Peer
             end
@@ -161,7 +161,7 @@ is_local("127.0.0.1") -> true;
 is_local("10."++_) -> true;
 is_local("192.168."++_) -> true;
 is_local("172."++Rest) ->
-    case string:tokens(Rest, ".") of
+    case string:lexemes(Rest, ".") of
         [Next|_] ->
             case catch list_to_integer(Next) of
                 N when N > 15, N < 32 ->
@@ -209,7 +209,7 @@ header_peername(End, Req, Header, FilterFun) ->
         {undefined, _} ->
             undefined;
         {Hosts, _} ->
-            HostList = string:tokens(Hosts, ", "),
+            HostList = string:lexemes(Hosts, ", "),
             DirList = case End of
                           first -> HostList;
                           last -> lists:reverse(HostList)
@@ -582,7 +582,7 @@ expects_continue(PassedState) ->
         {undefined, _} ->
             false;
         {Continue, _} ->
-            string:to_lower(Continue) =:= "100-continue"
+            string:lowercase(Continue) =:= "100-continue"
     end.
 
 sent_continue() ->

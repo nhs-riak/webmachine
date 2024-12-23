@@ -171,8 +171,8 @@ media_type_match(Req,Prov) ->
         Prov ->
             true;
         _ ->
-            [R1|R2] = string:tokens(Req,"/"),
-            [P1,_P2] = string:tokens(Prov,"/"),
+            [R1|R2] = string:lexemes(Req,"/"),
+            [P1,_P2] = string:lexemes(Prov,"/"),
             case R2 of
                 ["*"] ->
                     case R1 of
@@ -222,7 +222,7 @@ accept_header_to_media_types(HeadVal) ->
     try
         lists:reverse(lists:keysort(1,
          [prioritize_media(media_type_to_detail(MType)) ||
-             MType <- [string:strip(X) || X <- string:tokens(HeadVal, ",")]]))
+             MType <- [string:trim(X) || X <- string:lexemes(HeadVal, ",")]]))
     catch _:_ -> []
     end.
 
@@ -258,7 +258,7 @@ choose_charset(CSets, AccCharHdr) -> do_choose(CSets, AccCharHdr, "ISO-8859-1").
 choose_encoding(Encs, AccEncHdr) -> do_choose(Encs, AccEncHdr, "identity").
 
 do_choose(Choices, Header, Default) ->
-    Accepted = build_conneg_list(string:tokens(Header, ",")),
+    Accepted = build_conneg_list(string:lexemes(Header, ",")),
     DefaultPrio = [P || {P,C} <- Accepted, C =:= Default],
     StarPrio = [P || {P,C} <- Accepted, C =:= "*"],
     DefaultOkay = case DefaultPrio of
@@ -300,14 +300,14 @@ do_choose(Default, DefaultOkay, AnyOkay, Choices, [AccPair|AccRest]) ->
             do_choose(Default, DefaultOkay, AnyOkay,
                             lists:delete(Acc, Choices), AccRest);
         _ ->
-            LAcc = string:to_lower(Acc),
-            LChoices = [string:to_lower(X) || X <- Choices],
+            LAcc = string:lowercase(Acc),
+            LChoices = [string:lowercase(X) || X <- Choices],
             % doing this a little more work than needed in
             % order to be easily insensitive but preserving
             case lists:member(LAcc, LChoices) of
                 true ->
                     hd([X || X <- Choices,
-                             string:to_lower(X) =:= LAcc]);
+                             string:lowercase(X) =:= LAcc]);
                 false -> do_choose(Default, DefaultOkay, AnyOkay,
                                          Choices, AccRest)
             end
@@ -317,7 +317,7 @@ build_conneg_list(AccList) ->
     build_conneg_list(AccList, []).
 build_conneg_list([], Result) -> lists:reverse(lists:sort(Result));
 build_conneg_list([Acc|AccRest], Result) ->
-    XPair = list_to_tuple([string:strip(X) || X <- string:tokens(Acc, ";")]),
+    XPair = list_to_tuple([string:trim(X) || X <- string:lexemes(Acc, ";")]),
     Pair = case XPair of
         {Choice, "q=" ++ PrioStr} ->
             case PrioStr of
